@@ -1,0 +1,31 @@
+---
+import AsideMenuCard from "./AsideMenuCard.astro";
+import AsideMenuItem from "./AsideMenuItem.astro";
+import {playlists} from "@/lib/data"
+---
+<nav class="flex flex-col flex-1 gap-2">
+    <div class="bg-zinc-900 rounded-lg p-2">
+        <ul class="">
+            <AsideMenuItem href="/">
+                Inicio
+            </AsideMenuItem>
+            <AsideMenuItem href="/">
+                Buscar
+            </AsideMenuItem>
+        </ul>
+    </div>
+    <div class="bg-zinc-900 rounded-lg p-2 flex-1">
+        <ul class="">
+            <AsideMenuItem href="/">
+                Libreria
+            </AsideMenuItem>
+            {
+                playlists.map(set => (
+                    <AsideMenuCard playlist={set}/>
+                ))
+            }
+           
+           
+        </ul>
+    </div>
+</nav>

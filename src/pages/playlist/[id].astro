@@ -1,0 +1,63 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { playlists  } from "../../lib/data";
+import PlaylistItemCard from "../../components/PlaylistItemCard.astro";
+
+const { id } = Astro.params;
+
+const playlist = playlists.find((playlist) => playlist.id === id);
+// const playlistSongs = song
+
+
+---
+
+<Layout title="Welcome to Astro.">
+  <div
+    id="playlist-container"
+    class="relative flex flex-col h-full transition-all duration-1000 bg-zinc-900 overflow-x-hidden "
+    transition:name=`playlist ${id} box`
+    >
+    <!-- Page Header -->
+
+    <header class="flex gap-8 px-6 mt-12">
+        <picture class="flex-none aspect-square h-52 w-52 h-auto">
+            <img
+              src={playlist?.cover}
+              alt={`cover of ${playlist?.title}`}
+              class="object-cover w-full h-full shadow-lg"
+              transition:name=`playlist ${playlist?.id} image`
+            />
+          </picture>
+          
+          <div class="flex flex-col justify-end">
+            <h2 class="flex flex-1 items-end text-xs">Playlist</h2>
+            <div>
+                <h1 class="font-bold block text-5xl text-white">
+                    {playlist?.title}
+                    <span transition:name=`playlist ${playlist?.id} title`></span>
+                </h1>
+            </div>
+
+            <div class="flex-1 flex items-end">
+                <div class="text-sm text-gray-300 font-normal">
+                    <div transition:name=`playlist ${id} artists`>
+                        <span>{playlist?.artists.join(", ")}</span>
+                    </div>
+                    <p class="mt-1">
+                        <span class="text-white">50 canciones </span>
+                    </p>
+                </div>
+            </div>
+          </div>
+    
+    </header>
+
+    
+    <!-- <div
+      class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80"
+    >
+    </div> -->
+  </div>
+</Layout>
+
+<style></style>
