@@ -31,8 +31,84 @@ const CurrentSong = ({ image, title }) => {
         </div>
     )
 }
+const SongControl = ({ audio }) => {
+    const [currentTime, setCurrentTime] = useState(0)
+    useEffect(() => {
+        audio.current.addEventListener('timeupdate', handleTimeUpdate)
+        return audio.current.removeEventListener('timepdate', handleTimeUpdate)
+    }, [])
+
+    const handleTimeUpdate = () => {
+        setCurrentTime(audio.current.currentTime)
+    }
+
+    function secondsToHH_MM_SS(time) {
+        // return 00:10:09
+        if (!time) return `00:00`
+        const seconds = Math.floor(time % 60)
+        const minutes = Math.floor(time / 60)
+
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`
+      }
+
+      const audioDuration = audio?.current?.duration ?? 0
+      
+    return (
+        <div className='flex gap-3 flex-col md:flex-row text-xs'>
+            <span className='opacity-50 w-12 text-right'>{secondsToHH_MM_SS(currentTime)}</span>
+
+            <Slider
+                defaultValue={[0]}
+                max={audio?.current?.duration ?? 0}
+                min={0}
+                value={[Math.floor(currentTime)]}
+                className="w-[400px]"
+                onValueChange={(value) => {
+                    audio.current.currentTime = value
+                }}
+            />
+            <span className='opacity-50 w-12 text-left'>{secondsToHH_MM_SS(audioDuration)}</span>
+        </div>
+
+    )
+}
+const VolumeControl = () => {
+    const { volume, setVolume } = usePlayerStore(state => state)
+    const isVolumeSilence = volume < 0.1
+    const previousVolumeRef = useRef(volume)
+
+    const handleClickVolumen = () => {
+        if (isVolumeSilence) {
+            setVolume(previousVolumeRef.current)
+        } else {
+            previousVolumeRef.current = volume
+            setVolume(0)
+        }
+    }
+    return (
+        <div className='flex justify-center gap-x-2'>
+
+            <button className="opacity-70 hover:opacity-100 transition" onClick={handleClickVolumen}>
+                {isVolumeSilence ? <VolumeSilence /> : <Volume />}
+            </button>
+
+
+            <Slider
+                defaultValue={[100]}
+                max={100}
+                min={0}
+                className="w-[100px]"
+                onValueChange={(value) => {
+                    const [newVolume] = value
+                    const volumeValue = newVolume / 100
+                    setVolume(volumeValue)
+                }}
+            />
+        </div>
+    )
+}
 export function Player() {
-    const { currentMusic, isPlaying, setIsPlaying, setCurrentMusic } = usePlayerStore(state => state)
+    const { currentMusic, isPlaying, setIsPlaying, setCurrentMusic, volume } = usePlayerStore(state => state)
 
     const audioRef = useRef()
     const volumeRef = useRef(1)
@@ -43,6 +119,10 @@ export function Player() {
             ? audioRef.current.play()
             : audioRef.current.pause()
     }, [isPlaying])
+
+    useEffect(() => {
+        audioRef.current.volume = volume
+    }, [volume])
 
     // useEffect(() => {
     //     const randomFolder = Math.floor(Math.random() * 4)
@@ -60,40 +140,52 @@ export function Player() {
             audioRef.current.volume = volumeRef.current
             audioRef.current.play()
 
-        } 
+        }
     }, [currentMusic])
+    const getRandomSong = () => {
+        const randomFolder = Math.floor(Math.random() * 4) + 1
+        const randomTrack = Math.floor(Math.random() * 3) + 1
+        const randomSrc = `/songs/${randomFolder}/0${randomTrack}.mp3`
+        audioRef.current.src = randomSrc
 
+        fetch(`/api/get-info-playlist.json?id=${randomFolder}`)
+        .then(res => res.json())
+        .then(data => {
+            const {songs, playlist} = data
+
+            setIsPlaying(true)
+
+            setCurrentMusic({
+                songs,
+                playlist,
+                song: songs[randomTrack]
+               })
+        })
+    }
     const handleClick = () => {
+        const { song, playlist, songs } = currentMusic
+        if (!song) {
+            getRandomSong()
+        }
         setIsPlaying(!isPlaying)
     }
     // console.log(isPlaying)
     return (
-        <div className="flex flex-col items-center md:flex-row justify-between w-full px-4 z-50">
+        <div className="grid items-center md:grid-cols-[1fr_2fr_1fr] justify-between w-full px-4 z-50">
             <div className="">
                 <CurrentSong {...currentMusic.song} />
             </div>
 
             <div className="grid place-content-center gap-4 flex-1">
-                <div>
+                <div className='text-center'>
                     <button className="bg-white rounded-full p-2 font-bold text-2xl text-white" onClick={handleClick} >
                         {isPlaying ? <Pause /> : <Play />}
                     </button>
                 </div>
-
+                <SongControl audio={audioRef} />
             </div>
-            <div className="">
-                <Slider 
-                defaultValue={[100]}
-                max={100}
-                min={0}
-                className="w-[95px]"
-                onValueChange={(value) => {
-                    const [newVolume] = value
-                    const volumeValue = newVolume / 100
-                    volumeRef.current = volumeValue
-                    audioRef.current.volume = volumeValue
-                }}
-                />
+            <div className="flex justify-end">
+                <VolumeControl />
             </div>
 
             <audio ref={audioRef} />
