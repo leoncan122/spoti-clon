@@ -94,9 +94,10 @@ const VolumeControl = () => {
 
 
             <Slider
-                defaultValue={[100]}
+                defaultValue={[33]}
                 max={100}
                 min={0}
+                // value={[volume * 100]}
                 className="w-[100px]"
                 onValueChange={(value) => {
                     const [newVolume] = value
@@ -124,13 +125,22 @@ export function Player() {
         audioRef.current.volume = volume
     }, [volume])
 
-    // useEffect(() => {
-    //     const randomFolder = Math.floor(Math.random() * 4)
-    //     const randomTrack = Math.floor(Math.random() * 3)
-    //     const randomSrc = `/songs/${randomFolder}/0${randomTrack}.mp3`
-    //     audioRef.current.src = randomSrc 
+    useEffect(() => {
+        const randomFolder = Math.floor(Math.random() * 4) + 1
 
-    // }, [])
+        fetch(`/api/get-info-playlist.json?id=${randomFolder}`)
+        .then(res => res.json())
+        .then(data => {
+            const {songs, playlist} = data
+
+            setCurrentMusic({
+                songs,
+                playlist,
+                song: songs[0]
+               })
+        })
+
+    }, [])
 
     useEffect(() => {
         const { song, playlist, songs } = currentMusic
@@ -164,6 +174,7 @@ export function Player() {
     }
     const handleClick = () => {
         const { song, playlist, songs } = currentMusic
+
         if (!song) {
             getRandomSong()
         }

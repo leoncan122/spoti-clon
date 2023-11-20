@@ -1,5 +1,5 @@
 ---
-import { type Playlist } from "@/lib/data";
+import type { Playlist } from "@/lib/data";
 import { CardPlayButton } from "./CardPlayButton";
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { playlist } = Astro.props;
+console.log("playlist item card, 1", playlist)
 const { id, cover, title, artists, color } = playlist;
 const artistsString = artists.join(", ");
 ---
