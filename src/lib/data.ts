@@ -1,6 +1,6 @@
 import { colors } from "./colors";
 
-export interface Playlist {
+export type Playlist {
   id: string;
   albumId: number;
   title: string;
