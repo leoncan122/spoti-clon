@@ -3,16 +3,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*"
-      ],
-      "@/components": [
-        "src/components/*"
-      ],
-      "@/icons": [
-        "src/icons/*"
-      ],
-      "@/lib": [
-        "src/lib/*"
+        "./src/*"
       ]
     },
     "jsx": "react-jsx",
